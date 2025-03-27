@@ -30,7 +30,7 @@ const difficultyButtons = document.querySelectorAll('.difficulty button');
 // 预加载分享图片
 function preloadShareImage() {
     const img = new Image();
-    img.src = 'public/img/minesweeper-share.png?v=0325001';
+    img.src = 'public/img/minesweeper-share.png?v=0325002';
     console.log('预加载分享图片');
 }
 
