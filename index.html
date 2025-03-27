@@ -19,20 +19,24 @@
     <!-- 社交媒体分享 -->
     <meta property="og:title" content="经典扫雷2025 - 复刻版">
     <meta property="og:description" content="Windows经典扫雷游戏复刻版，支持电脑和手机操作。好玩又怀旧的休闲小游戏！">
-    <meta property="og:image" content="https://carsonfeng.github.io/minesweeper/public/minesweeper-icon.svg">
+    <meta property="og:image" content="https://carsonfeng.github.io/minesweeper/public/img/minesweeper-share.png">
     <meta property="og:url" content="https://carsonfeng.github.io/minesweeper/">
     <meta property="og:type" content="website">
     
     <!-- 微信分享专用 -->
     <meta itemprop="name" content="经典扫雷2025 - 复刻版">
     <meta itemprop="description" content="Windows经典扫雷游戏复刻版，支持电脑和手机操作。好玩又怀旧的休闲小游戏！">
-    <meta itemprop="image" content="https://carsonfeng.github.io/minesweeper/public/minesweeper-icon.svg">
+    <meta itemprop="image" content="https://carsonfeng.github.io/minesweeper/public/img/minesweeper-wechat.png">
     
     <!-- QQ/微信专用分享 -->
-    <meta name="weibo:image:src" content="https://carsonfeng.github.io/minesweeper/public/minesweeper-icon.svg" />
+    <meta name="weibo:image:src" content="https://carsonfeng.github.io/minesweeper/public/img/minesweeper-wechat.png" />
     <meta property="qc:admins" content="经典扫雷2025"/>
     
-    <link rel="stylesheet" href="css/style.css?v=202503271455">
+    <!-- 微信小程序分享支持 -->
+    <meta name="wxopen:image" content="https://carsonfeng.github.io/minesweeper/public/img/minesweeper-wechat.png" />
+    <meta name="wxapp:image" content="https://carsonfeng.github.io/minesweeper/public/img/minesweeper-wechat.png" />
+    
+    <link rel="stylesheet" href="css/style.css?v=202503271610">
     <script>
         // 清除缓存
         if (window.applicationCache) {
@@ -42,8 +46,8 @@
         }
         
         // 强制刷新
-        if (localStorage.getItem('lastUpdated') !== '202503271455') {
-            localStorage.setItem('lastUpdated', '202503271455');
+        if (localStorage.getItem('lastUpdated') !== '202503271610') {
+            localStorage.setItem('lastUpdated', '202503271610');
             window.location.reload(true);
         }
     </script>
@@ -76,6 +80,6 @@
             <p>长按/右键标记地雷 | 单击/轻触翻开方块</p>
         </footer>
     </div>
-    <script src="js/game.js?v=202503271455"></script>
+    <script src="js/game.js?v=202503271610"></script>
 </body>
 </html> 

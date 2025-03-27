@@ -1,8 +1,8 @@
 // 游戏配置
 const GAME_MODES = {
     easy: { rows: 9, columns: 9, mines: 10 },
-    medium: { rows: 12, columns: 12, mines: 25 },
-    hard: { rows: 14, columns: 18, mines: 50 }
+    medium: { rows: 11, columns: 11, mines: 22 },
+    hard: { rows: 12, columns: 15, mines: 40 }
 };
 
 // 游戏状态
@@ -172,38 +172,50 @@ function createBoard() {
 
 // 适应屏幕大小
 function adjustBoardSize() {
+    const gameBoard = document.getElementById('game-board');
     const main = document.querySelector('main');
-    const board = document.getElementById('game-board');
-    const { rows, columns } = GAME_MODES[gameState.mode];
     
-    // 重置任何现有的缩放
-    board.style.transform = 'scale(1)';
+    // 重置样式以获取本来尺寸
+    gameBoard.style.transform = 'scale(1)';
     
-    // 获取主要容器和游戏板的尺寸
-    const mainRect = main.getBoundingClientRect();
-    const boardRect = board.getBoundingClientRect();
-    
-    // 检测是否是移动设备
     const isMobile = window.innerWidth <= 768;
+    const currentMode = GAME_MODES[gameState.mode];
     
-    // 为移动设备和桌面设备使用不同的系数
-    const fillFactor = isMobile ? 0.98 : 0.95;
+    // 游戏板的实际大小
+    const boardWidth = gameBoard.offsetWidth;
+    const boardHeight = gameBoard.offsetHeight;
     
-    // 计算水平和垂直缩放比例，尽量占据更多空间
-    const scaleX = (mainRect.width * fillFactor) / boardRect.width;
-    const scaleY = (mainRect.height * fillFactor) / boardRect.height;
+    // 可用的主区域尺寸（减去内边距）
+    const mainPadding = parseInt(window.getComputedStyle(main).padding) * 2 || 0;
+    const mainWidth = main.offsetWidth - mainPadding - 10; // 减去额外的10px以留有余量
+    const mainHeight = main.offsetHeight - mainPadding - 10;
     
-    // 在移动设备上，我们更倾向于填满空间
-    const scale = Math.min(scaleX, scaleY);
+    // 计算水平和垂直缩放比例
+    const scaleX = mainWidth / boardWidth;
+    const scaleY = mainHeight / boardHeight;
+    
+    // 使用两个缩放比例中较小的一个，确保完全适合
+    let scale = Math.min(scaleX, scaleY);
+    
+    // 为不同模式设置最小缩放限制
+    if (gameState.mode === 'medium') {
+        scale = Math.max(scale, isMobile ? 0.65 : 0.7);
+    } else if (gameState.mode === 'hard') {
+        scale = Math.max(scale, isMobile ? 0.55 : 0.6);
+    }
     
     // 应用缩放
-    board.style.transform = `scale(${scale})`;
+    gameBoard.style.transform = `scale(${scale})`;
     
-    // 在调试模式下输出计算信息
-    console.log(`Window size: ${window.innerWidth}x${window.innerHeight}`);
-    console.log(`Main area: ${mainRect.width}x${mainRect.height}`);
-    console.log(`Board size: ${boardRect.width}x${boardRect.height}`);
-    console.log(`Applied scale: ${scale} (${scaleX}, ${scaleY})`);
+    // 在开发模式下输出调试信息
+    if (localStorage.getItem('debugMode') === 'true') {
+        console.log(`游戏模式: ${gameState.mode}, 行: ${currentMode.rows}, 列: ${currentMode.columns}`);
+        console.log(`设备: ${isMobile ? '移动设备' : '桌面'}`);
+        console.log(`窗口尺寸: ${window.innerWidth}×${window.innerHeight}`);
+        console.log(`主区域尺寸: ${mainWidth}×${mainHeight}`);
+        console.log(`棋盘尺寸: ${boardWidth}×${boardHeight}`);
+        console.log(`应用缩放: ${scale} (缩放X: ${scaleX}, 缩放Y: ${scaleY})`);
+    }
 }
 
 // 生成地雷
@@ -504,6 +516,32 @@ function handleOrientationChange() {
         // 调整游戏棋盘大小
         setTimeout(adjustBoardSize, 300);
     }, 100);
+}
+
+// 添加调试模式切换函数
+function toggleDebugMode() {
+    const currentMode = localStorage.getItem('debugMode') === 'true';
+    localStorage.setItem('debugMode', (!currentMode).toString());
+    console.log(`调试模式: ${!currentMode ? '开启' : '关闭'}`);
+    return !currentMode;
+}
+
+// 添加窗口尺寸变化监听，以便在旋转或调整窗口大小时重新调整棋盘
+window.addEventListener('resize', debounce(function() {
+    if (gameState.started) {
+        adjustBoardSize();
+    }
+}, 250));
+
+// 防抖函数，避免频繁调用
+function debounce(func, wait) {
+    let timeout;
+    return function() {
+        const context = this;
+        const args = arguments;
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(context, args), wait);
+    };
 }
 
 // 在页面加载完成后初始化游戏
