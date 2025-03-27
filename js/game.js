@@ -1,8 +1,8 @@
 // 游戏配置
 const GAME_MODES = {
     easy: { rows: 9, columns: 9, mines: 10 },
-    medium: { rows: 16, columns: 16, mines: 40 },
-    hard: { rows: 16, columns: 30, mines: 99 }
+    medium: { rows: 12, columns: 12, mines: 25 },
+    hard: { rows: 14, columns: 18, mines: 50 }
 };
 
 // 游戏状态
@@ -54,6 +54,16 @@ function initGame(mode = 'easy') {
     
     // 创建游戏面板
     createBoard();
+    
+    // 强制刷新布局并调整大小
+    setTimeout(() => {
+        adjustBoardSize();
+        // 500毫秒后再次调整以确保布局稳定
+        setTimeout(adjustBoardSize, 500);
+    }, 50);
+    
+    // 尝试进入全屏模式 (针对移动设备)
+    tryEnterFullscreen();
 }
 
 // 创建游戏面板
@@ -89,23 +99,60 @@ function createBoard() {
             
             // 为移动设备添加长按事件（标记地雷）
             let pressTimer;
+            let longPressTriggered = false;
+            
             cell.addEventListener('touchstart', (e) => {
+                longPressTriggered = false;
                 pressTimer = setTimeout(() => {
+                    longPressTriggered = true;
                     handleRightClick(row, col);
                 }, 500);
             });
             
-            cell.addEventListener('touchend', () => {
+            cell.addEventListener('touchend', (e) => {
                 clearTimeout(pressTimer);
+                if (!longPressTriggered) {
+                    // 只有在没有触发长按的情况下才执行点击
+                    handleCellClick(row, col);
+                }
+                e.preventDefault(); // 防止进一步的点击事件
             });
             
             cell.addEventListener('touchmove', () => {
                 clearTimeout(pressTimer);
+                longPressTriggered = false;
             });
             
             gameBoard.appendChild(cell);
         }
     }
+    
+    // 适应屏幕大小
+    setTimeout(adjustBoardSize, 0);
+}
+
+// 适应屏幕大小
+function adjustBoardSize() {
+    const main = document.querySelector('main');
+    const board = document.getElementById('game-board');
+    const { rows, columns } = GAME_MODES[gameState.mode];
+    
+    // 重置任何现有的缩放
+    board.style.transform = 'scale(1)';
+    
+    // 获取主要容器和游戏板的尺寸
+    const mainRect = main.getBoundingClientRect();
+    const boardRect = board.getBoundingClientRect();
+    
+    // 计算水平和垂直缩放比例，尽量占据更多空间
+    const scaleX = (mainRect.width * 0.95) / boardRect.width;
+    const scaleY = (mainRect.height * 0.95) / boardRect.height;
+    
+    // 使用最小的缩放比例以确保游戏板完全适应
+    const scale = Math.min(scaleX, scaleY);
+    
+    // 应用缩放，无论是大于还是小于1都应用
+    board.style.transform = `scale(${scale})`;
 }
 
 // 生成地雷
@@ -342,5 +389,93 @@ difficultyButtons.forEach(button => {
     });
 });
 
-// 初始化游戏
-initGame(); 
+// 尝试进入全屏模式
+function tryEnterFullscreen() {
+    // 仅在移动设备上尝试全屏
+    if (window.innerWidth <= 768 && document.documentElement.requestFullscreen) {
+        document.addEventListener('click', function fullscreenHandler() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log(`全屏请求被拒绝: ${err.message}`);
+                });
+            }
+            // 移除事件监听器，避免重复触发
+            document.removeEventListener('click', fullscreenHandler);
+        }, { once: true });
+    }
+}
+
+// 确保屏幕不会睡眠 (仅在游戏进行时)
+function preventSleep() {
+    if ('wakeLock' in navigator) {
+        let wakeLock = null;
+        
+        async function requestWakeLock() {
+            try {
+                wakeLock = await navigator.wakeLock.request('screen');
+            } catch (err) {
+                console.log(`请求WakeLock失败: ${err.message}`);
+            }
+        }
+        
+        // 当游戏开始时请求
+        document.addEventListener('click', requestWakeLock, { once: true });
+        
+        // 当页面可见性改变时重新请求
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible' && !gameState.gameOver) {
+                requestWakeLock();
+            }
+        });
+    }
+}
+
+// 添加屏幕方向锁定 (可选)
+function lockScreenOrientation() {
+    if (screen.orientation && screen.orientation.lock) {
+        // 尝试锁定屏幕方向为当前方向
+        screen.orientation.lock(screen.orientation.type).catch(err => {
+            console.log(`屏幕方向锁定失败: ${err.message}`);
+        });
+    }
+}
+
+// 在页面加载完成后初始化游戏
+window.addEventListener('load', () => {
+    // 检测是否是移动设备并默认使用适合的难度
+    const isMobile = window.innerWidth <= 768;
+    if (isMobile) {
+        // 移动设备默认使用简单模式
+        document.getElementById('easy').classList.add('active');
+        document.getElementById('medium').classList.remove('active');
+        document.getElementById('hard').classList.remove('active');
+        initGame('easy');
+    } else {
+        initGame();
+    }
+    
+    preventSleep();
+    
+    // 添加移动设备相关的事件处理
+    document.addEventListener('touchstart', function(e) {
+        // 防止双击缩放
+        if (e.touches.length > 1) {
+            e.preventDefault();
+        }
+    }, { passive: false });
+    
+    // 防止移动设备上的长按弹出菜单
+    document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+    });
+    
+    // 窗口大小改变时调整游戏板大小
+    window.addEventListener('resize', adjustBoardSize);
+    
+    // 屏幕方向改变时重新调整大小
+    if (screen.orientation) {
+        screen.orientation.addEventListener('change', () => {
+            setTimeout(adjustBoardSize, 300);
+        });
+    }
+}); 
