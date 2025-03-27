@@ -2,7 +2,7 @@
 const GAME_MODES = {
     easy: { rows: 9, columns: 9, mines: 10 },
     medium: { rows: 11, columns: 11, mines: 22 },
-    hard: { rows: 11, columns: 14, mines: 35 }
+    hard: { rows: 11, columns: 13, mines: 32 }
 };
 
 // 游戏状态
@@ -179,6 +179,7 @@ function adjustBoardSize() {
     gameBoard.style.transform = 'scale(1)';
     
     const isMobile = window.innerWidth <= 768;
+    const isSmallScreen = window.innerWidth <= 360;
     const currentMode = GAME_MODES[gameState.mode];
     
     // 游戏板的实际大小
@@ -187,7 +188,7 @@ function adjustBoardSize() {
     
     // 可用的主区域尺寸（减去内边距和安全边距）
     const mainPadding = parseInt(window.getComputedStyle(main).padding) * 2 || 0;
-    const safetyMargin = isMobile ? 20 : 30; // 移动端和桌面端的安全边距
+    const safetyMargin = isMobile ? (isSmallScreen ? 10 : 15) : 20; // 根据屏幕大小调整安全边距
     const mainWidth = main.offsetWidth - mainPadding - safetyMargin;
     const mainHeight = main.offsetHeight - mainPadding - safetyMargin;
     
@@ -200,9 +201,9 @@ function adjustBoardSize() {
     
     // 为不同模式设置最小缩放限制
     if (gameState.mode === 'medium') {
-        scale = Math.max(scale, isMobile ? 0.7 : 0.75);
+        scale = Math.max(scale, isMobile ? (isSmallScreen ? 0.65 : 0.7) : 0.75);
     } else if (gameState.mode === 'hard') {
-        scale = Math.max(scale, isMobile ? 0.6 : 0.65);
+        scale = Math.max(scale, isMobile ? (isSmallScreen ? 0.55 : 0.6) : 0.65);
     }
     
     // 应用缩放
@@ -210,12 +211,12 @@ function adjustBoardSize() {
     
     // 在调试模式下输出信息
     if (localStorage.getItem('debugMode') === 'true') {
-        console.log(`游戏模式: ${gameState.mode}`);
-        console.log(`设备: ${isMobile ? '移动设备' : '桌面'}`);
+        console.log(`游戏模式: ${gameState.mode} (${currentMode.rows}x${currentMode.columns})`);
+        console.log(`设备: ${isMobile ? (isSmallScreen ? '小屏手机' : '手机') : '桌面'}`);
         console.log(`窗口尺寸: ${window.innerWidth}×${window.innerHeight}`);
         console.log(`主区域尺寸: ${mainWidth}×${mainHeight}`);
         console.log(`棋盘尺寸: ${boardWidth}×${boardHeight}`);
-        console.log(`应用缩放: ${scale} (X: ${scaleX}, Y: ${scaleY})`);
+        console.log(`应用缩放: ${scale.toFixed(3)} (X: ${scaleX.toFixed(3)}, Y: ${scaleY.toFixed(3)})`);
     }
 }
 
