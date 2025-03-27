@@ -89,7 +89,10 @@ function createBoard() {
             cell.dataset.col = col;
             
             // 添加单击事件监听器
-            cell.addEventListener('click', () => handleCellClick(row, col));
+            cell.addEventListener('click', (e) => {
+                e.preventDefault();
+                handleCellClick(row, col);
+            });
             
             // 添加右键点击事件监听器（标记地雷）
             cell.addEventListener('contextmenu', (e) => {
@@ -100,28 +103,64 @@ function createBoard() {
             // 为移动设备添加长按事件（标记地雷）
             let pressTimer;
             let longPressTriggered = false;
+            let touchStartX = 0, touchStartY = 0;
             
             cell.addEventListener('touchstart', (e) => {
+                e.preventDefault(); // 阻止默认行为，防止出现菜单
+                
+                touchStartX = e.touches[0].clientX;
+                touchStartY = e.touches[0].clientY;
                 longPressTriggered = false;
+                
                 pressTimer = setTimeout(() => {
                     longPressTriggered = true;
                     handleRightClick(row, col);
+                    
+                    // 添加触觉反馈（如果支持）
+                    if (window.navigator.vibrate) {
+                        window.navigator.vibrate(50);
+                    }
                 }, 500);
-            });
+            }, { passive: false }); // 重要：设置为非被动模式，允许preventDefault生效
             
             cell.addEventListener('touchend', (e) => {
+                e.preventDefault();
                 clearTimeout(pressTimer);
-                if (!longPressTriggered) {
-                    // 只有在没有触发长按的情况下才执行点击
+                
+                // 计算移动距离
+                if (e.changedTouches && e.changedTouches[0]) {
+                    const touchEndX = e.changedTouches[0].clientX;
+                    const touchEndY = e.changedTouches[0].clientY;
+                    const distance = Math.sqrt(
+                        Math.pow(touchEndX - touchStartX, 2) + 
+                        Math.pow(touchEndY - touchStartY, 2)
+                    );
+                    
+                    // 如果没有触发长按且移动距离小，则算作点击
+                    if (!longPressTriggered && distance < 10) {
+                        handleCellClick(row, col);
+                    }
+                } else if (!longPressTriggered) {
                     handleCellClick(row, col);
                 }
-                e.preventDefault(); // 防止进一步的点击事件
-            });
+            }, { passive: false });
             
-            cell.addEventListener('touchmove', () => {
-                clearTimeout(pressTimer);
-                longPressTriggered = false;
-            });
+            cell.addEventListener('touchmove', (e) => {
+                // 如果移动超过一定距离，取消长按
+                if (e.touches && e.touches[0]) {
+                    const touchMoveX = e.touches[0].clientX;
+                    const touchMoveY = e.touches[0].clientY;
+                    const distance = Math.sqrt(
+                        Math.pow(touchMoveX - touchStartX, 2) + 
+                        Math.pow(touchMoveY - touchStartY, 2)
+                    );
+                    
+                    if (distance > 10) {
+                        clearTimeout(pressTimer);
+                        longPressTriggered = false;
+                    }
+                }
+            }, { passive: true });
             
             gameBoard.appendChild(cell);
         }
@@ -483,6 +522,24 @@ window.addEventListener('load', () => {
     
     preventSleep();
     
+    // 防止选择文本和显示上下文菜单
+    document.body.addEventListener('selectstart', function(e) { 
+        e.preventDefault();
+        return false;
+    }, { passive: false });
+    
+    // 防止长按显示菜单
+    document.body.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+        return false;
+    }, { passive: false });
+    
+    // 防止拖动
+    document.body.addEventListener('dragstart', function(e) {
+        e.preventDefault();
+        return false;
+    }, { passive: false });
+    
     // 添加移动设备相关的事件处理
     document.addEventListener('touchstart', function(e) {
         // 防止双击缩放
@@ -490,11 +547,6 @@ window.addEventListener('load', () => {
             e.preventDefault();
         }
     }, { passive: false });
-    
-    // 防止移动设备上的长按弹出菜单
-    document.addEventListener('contextmenu', function(e) {
-        e.preventDefault();
-    });
     
     // 窗口大小改变时调整游戏板大小
     window.addEventListener('resize', () => {

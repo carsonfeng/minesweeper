@@ -1,0 +1,42 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <!-- 背景 -->
+    <rect x="0" y="0" width="200" height="200" fill="#0a713a" />
+    
+    <!-- 扫雷网格 -->
+    <g fill="#a7d948" stroke="#4a752c" stroke-width="2">
+        <rect x="20" y="60" width="40" height="40" />
+        <rect x="60" y="60" width="40" height="40" />
+        <rect x="100" y="60" width="40" height="40" />
+        <rect x="140" y="60" width="40" height="40" />
+        
+        <rect x="20" y="100" width="40" height="40" />
+        <rect x="60" y="100" width="40" height="40" />
+        <rect x="100" y="100" width="40" height="40" />
+        <rect x="140" y="100" width="40" height="40" />
+        
+        <rect x="20" y="140" width="40" height="40" />
+        <rect x="60" y="140" width="40" height="40" />
+        <rect x="100" y="140" width="40" height="40" />
+        <rect x="140" y="140" width="40" height="40" />
+    </g>
+    
+    <!-- 地雷图标 -->
+    <circle cx="80" cy="120" r="15" fill="#333" />
+    <circle cx="80" cy="120" r="12" fill="#000" />
+    <circle cx="76" cy="116" r="3" fill="#fff" />
+    
+    <!-- 数字1 -->
+    <text x="42" y="132" font-family="Arial" font-size="30" font-weight="bold" fill="blue">1</text>
+    
+    <!-- 数字2 -->
+    <text x="122" y="92" font-family="Arial" font-size="30" font-weight="bold" fill="green">2</text>
+    
+    <!-- 旗帜 -->
+    <g transform="translate(140, 170)">
+        <rect x="-5" y="0" width="10" height="25" fill="#333" />
+        <polygon points="-5,-15 15,0 -5,15" fill="#e74c3c" />
+    </g>
+    
+    <!-- 标题 -->
+    <text x="100" y="40" font-family="Arial" font-size="24" font-weight="bold" fill="#fff" text-anchor="middle">扫雷2025</text>
+</svg> 
