@@ -8,7 +8,21 @@
     <meta name="theme-color" content="#0a713a">
     <meta name="format-detection" content="telephone=no">
     <title>Minesweeper - 经典扫雷2025</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=202503271339">
+    <script>
+        // 清除缓存
+        if (window.applicationCache) {
+            window.applicationCache.addEventListener('updateready', function() {
+                window.location.reload();
+            });
+        }
+        
+        // 强制刷新
+        if (localStorage.getItem('lastUpdated') !== '202503271339') {
+            localStorage.setItem('lastUpdated', '202503271339');
+            window.location.reload(true);
+        }
+    </script>
 </head>
 <body>
     <div class="container">
@@ -38,6 +52,6 @@
             <p>长按/右键标记地雷 | 单击/轻触翻开方块</p>
         </footer>
     </div>
-    <script src="js/game.js"></script>
+    <script src="js/game.js?v=202503271339"></script>
 </body>
 </html> 
