@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>扫雷图标</title>
+    <style>
+        body { 
+            margin: 0; 
+            padding: 20px; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: Arial, sans-serif;
+        }
+        canvas {
+            border: 1px solid #ccc;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>扫雷图标</h1>
+    <img id="svgImage" src="minesweeper-icon.svg" width="200" height="200" alt="扫雷图标">
+    <canvas id="canvas" width="200" height="200"></canvas>
+    <div id="dataUrl" style="word-break: break-all; max-width: 800px; margin-top: 20px; font-size: 12px;"></div>
+    
+    <script>
+        window.onload = function() {
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            const img = document.getElementById('svgImage');
+            
+            img.onload = function() {
+                ctx.drawImage(img, 0, 0, 200, 200);
+                const dataUrl = canvas.toDataURL('image/png');
+                document.getElementById('dataUrl').textContent = dataUrl;
+            };
+        };
+    </script>
+</body>
+</html> 
