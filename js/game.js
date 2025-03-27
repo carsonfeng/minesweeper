@@ -144,15 +144,27 @@ function adjustBoardSize() {
     const mainRect = main.getBoundingClientRect();
     const boardRect = board.getBoundingClientRect();
     
-    // 计算水平和垂直缩放比例，尽量占据更多空间
-    const scaleX = (mainRect.width * 0.95) / boardRect.width;
-    const scaleY = (mainRect.height * 0.95) / boardRect.height;
+    // 检测是否是移动设备
+    const isMobile = window.innerWidth <= 768;
     
-    // 使用最小的缩放比例以确保游戏板完全适应
+    // 为移动设备和桌面设备使用不同的系数
+    const fillFactor = isMobile ? 0.98 : 0.95;
+    
+    // 计算水平和垂直缩放比例，尽量占据更多空间
+    const scaleX = (mainRect.width * fillFactor) / boardRect.width;
+    const scaleY = (mainRect.height * fillFactor) / boardRect.height;
+    
+    // 在移动设备上，我们更倾向于填满空间
     const scale = Math.min(scaleX, scaleY);
     
-    // 应用缩放，无论是大于还是小于1都应用
+    // 应用缩放
     board.style.transform = `scale(${scale})`;
+    
+    // 在调试模式下输出计算信息
+    console.log(`Window size: ${window.innerWidth}x${window.innerHeight}`);
+    console.log(`Main area: ${mainRect.width}x${mainRect.height}`);
+    console.log(`Board size: ${boardRect.width}x${boardRect.height}`);
+    console.log(`Applied scale: ${scale} (${scaleX}, ${scaleY})`);
 }
 
 // 生成地雷
@@ -440,6 +452,21 @@ function lockScreenOrientation() {
     }
 }
 
+// 屏幕方向变化时的处理
+function handleOrientationChange() {
+    // 等待足够的时间让浏览器完成方向旋转
+    setTimeout(() => {
+        // 强制重新计算布局
+        document.body.style.display = 'none';
+        // 触发重排
+        void document.body.offsetHeight;
+        document.body.style.display = '';
+        
+        // 调整游戏棋盘大小
+        setTimeout(adjustBoardSize, 300);
+    }, 100);
+}
+
 // 在页面加载完成后初始化游戏
 window.addEventListener('load', () => {
     // 检测是否是移动设备并默认使用适合的难度
@@ -470,12 +497,15 @@ window.addEventListener('load', () => {
     });
     
     // 窗口大小改变时调整游戏板大小
-    window.addEventListener('resize', adjustBoardSize);
+    window.addEventListener('resize', () => {
+        setTimeout(adjustBoardSize, 200);
+    });
     
     // 屏幕方向改变时重新调整大小
     if (screen.orientation) {
-        screen.orientation.addEventListener('change', () => {
-            setTimeout(adjustBoardSize, 300);
-        });
+        screen.orientation.addEventListener('change', handleOrientationChange);
+    } else {
+        // 旧版API兼容
+        window.addEventListener('orientationchange', handleOrientationChange);
     }
 }); 
