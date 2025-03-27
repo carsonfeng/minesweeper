@@ -27,8 +27,18 @@ const timerElement = document.getElementById('timer');
 const resetButton = document.getElementById('reset-button');
 const difficultyButtons = document.querySelectorAll('.difficulty button');
 
+// 预加载分享图片
+function preloadShareImage() {
+    const img = new Image();
+    img.src = 'public/img/minesweeper-share.png?v=0325001';
+    console.log('预加载分享图片');
+}
+
 // 初始化游戏
 function initGame(mode = 'easy') {
+    // 预加载分享图片
+    preloadShareImage();
+    
     // 清除之前的游戏状态
     clearInterval(gameState.timerInterval);
     
@@ -199,24 +209,21 @@ function adjustBoardSize() {
     // 使用两个缩放比例中较小的一个，确保完全适合
     let scale = Math.min(scaleX, scaleY);
     
-    // 为不同模式设置最小缩放限制
-    if (gameState.mode === 'medium') {
-        scale = Math.max(scale, isMobile ? (isSmallScreen ? 0.65 : 0.7) : 0.75);
-    } else if (gameState.mode === 'hard') {
-        scale = Math.max(scale, isMobile ? (isSmallScreen ? 0.55 : 0.6) : 0.65);
-    }
+    // 根据游戏模式调整最小缩放比例
+    const minScale = gameState.mode === 'hard' ? (isMobile ? 0.6 : 0.7) : 0.8;
+    scale = Math.max(scale, minScale);
     
     // 应用缩放
     gameBoard.style.transform = `scale(${scale})`;
     
-    // 在调试模式下输出信息
-    if (localStorage.getItem('debugMode') === 'true') {
-        console.log(`游戏模式: ${gameState.mode} (${currentMode.rows}x${currentMode.columns})`);
-        console.log(`设备: ${isMobile ? (isSmallScreen ? '小屏手机' : '手机') : '桌面'}`);
-        console.log(`窗口尺寸: ${window.innerWidth}×${window.innerHeight}`);
-        console.log(`主区域尺寸: ${mainWidth}×${mainHeight}`);
-        console.log(`棋盘尺寸: ${boardWidth}×${boardHeight}`);
-        console.log(`应用缩放: ${scale.toFixed(3)} (X: ${scaleX.toFixed(3)}, Y: ${scaleY.toFixed(3)})`);
+    // 调试信息
+    if (window.debugMode) {
+        console.log('游戏模式:', gameState.mode);
+        console.log('设备类型:', isMobile ? '移动端' : '桌面端');
+        console.log('窗口大小:', window.innerWidth, 'x', window.innerHeight);
+        console.log('主区域大小:', mainWidth, 'x', mainHeight);
+        console.log('棋盘大小:', boardWidth, 'x', boardHeight);
+        console.log('应用缩放:', scale);
     }
 }
 

@@ -1,195 +1,115 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>分享图转PNG</title>
+    <title>SVG to PNG Converter</title>
     <style>
-        body { font-family: sans-serif; padding: 20px; background: #f5f5f5; }
-        .container { max-width: 1300px; margin: 0 auto; }
-        canvas { border: 1px solid #ccc; margin: 10px 0; background: white; }
-        button { padding: 10px 15px; background: #0a713a; color: white; border: none; cursor: pointer; margin: 10px 0; }
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .preview {
+            border: 1px solid #ccc;
+            margin: 10px 0;
+            padding: 10px;
+            text-align: center;
+        }
+        .preview img {
+            max-width: 100%;
+            height: auto;
+        }
+        .controls {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+        }
+        .info {
+            margin: 10px 0;
+            padding: 10px;
+            background: #e8f5e9;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>扫雷分享图 - SVG到PNG转换</h1>
-        <p>此工具会生成适合微信分享的PNG图像。</p>
-        
-        <div class="image-container">
-            <h2>分享图 (1200x630)</h2>
-            <canvas id="shareCanvas" width="1200" height="630"></canvas>
-            <div>
-                <button onclick="downloadImage('share')">下载分享图PNG</button>
-            </div>
-        </div>
-        
-        <div class="image-container">
-            <h2>微信分享图 (300x300)</h2>
-            <canvas id="wxCanvas" width="300" height="300"></canvas>
-            <div>
-                <button onclick="downloadImage('wx')">下载微信图标PNG</button>
-            </div>
-        </div>
+    <h1>SVG to PNG Converter</h1>
+    
+    <div class="info">
+        <h3>使用说明：</h3>
+        <ol>
+            <li>选择要转换的SVG文件</li>
+            <li>设置输出尺寸（建议300x300）</li>
+            <li>点击转换按钮</li>
+            <li>保存生成的PNG文件</li>
+        </ol>
+    </div>
+    
+    <div class="controls">
+        <select id="svgFile">
+            <option value="minesweeper-share.svg">分享图片 (300x300)</option>
+            <option value="minesweeper-wechat.svg">微信图标 (300x300)</option>
+        </select>
+        <br><br>
+        <label>宽度: <input type="number" id="width" value="300" min="100" max="1200"></label>
+        <label>高度: <input type="number" id="height" value="300" min="100" max="1200"></label>
+    </div>
+    
+    <div class="preview">
+        <h2>预览</h2>
+        <img id="preview-svg" src="minesweeper-share.svg" style="width: 300px; height: 300px;">
+    </div>
+    
+    <div>
+        <button onclick="convertToPNG()">生成PNG</button>
+        <button onclick="previewSVG()">更新预览</button>
     </div>
 
     <script>
-        const svgShare = `<?xml version="1.0" encoding="UTF-8"?>
-<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
-    <!-- 背景 -->
-    <rect x="0" y="0" width="1200" height="630" fill="#0a713a" />
-    
-    <!-- 标题 -->
-    <text x="600" y="120" font-family="Arial, sans-serif" font-size="80" font-weight="bold" fill="#ffffff" text-anchor="middle" dominant-baseline="middle">经典扫雷2025</text>
-    
-    <!-- 中央游戏板 -->
-    <g transform="translate(300, 165)">
-        <!-- 扫雷网格 - 放大版 -->
-        <g fill="#a7d948" stroke="#4a752c" stroke-width="5">
-            <rect x="40" y="60" width="100" height="100" />
-            <rect x="140" y="60" width="100" height="100" />
-            <rect x="240" y="60" width="100" height="100" />
-            <rect x="340" y="60" width="100" height="100" />
-            <rect x="440" y="60" width="100" height="100" />
-            
-            <rect x="40" y="160" width="100" height="100" />
-            <rect x="140" y="160" width="100" height="100" />
-            <rect x="240" y="160" width="100" height="100" />
-            <rect x="340" y="160" width="100" height="100" />
-            <rect x="440" y="160" width="100" height="100" />
-            
-            <rect x="40" y="260" width="100" height="100" />
-            <rect x="140" y="260" width="100" height="100" />
-            <rect x="240" y="260" width="100" height="100" />
-            <rect x="340" y="260" width="100" height="100" />
-            <rect x="440" y="260" width="100" height="100" />
-        </g>
-        
-        <!-- 地雷图标 -->
-        <g transform="translate(190, 210)">
-            <circle cx="0" cy="0" r="40" fill="#333" />
-            <circle cx="0" cy="0" r="35" fill="#000" />
-            <circle cx="-10" cy="-10" r="8" fill="#fff" />
-            
-            <!-- 触角 -->
-            <g stroke="#333" stroke-width="5">
-                <line x1="0" y1="-45" x2="0" y2="-60" />
-                <line x1="32" y1="-32" x2="42" y2="-42" />
-                <line x1="45" y1="0" x2="60" y2="0" />
-                <line x1="32" y1="32" x2="42" y2="42" />
-                <line x1="0" y1="45" x2="0" y2="60" />
-                <line x1="-32" y1="32" x2="-42" y2="42" />
-                <line x1="-45" y1="0" x2="-60" y2="0" />
-                <line x1="-32" y1="-32" x2="-42" y2="-42" />
-            </g>
-        </g>
-        
-        <!-- 数字1 -->
-        <text x="90" y="320" font-family="Arial, sans-serif" font-size="80" font-weight="bold" fill="blue" text-anchor="middle" dominant-baseline="middle">1</text>
-        
-        <!-- 数字2 -->
-        <text x="290" y="120" font-family="Arial, sans-serif" font-size="80" font-weight="bold" fill="green" text-anchor="middle" dominant-baseline="middle">2</text>
-        
-        <!-- 数字3 -->
-        <text x="390" y="220" font-family="Arial, sans-serif" font-size="80" font-weight="bold" fill="red" text-anchor="middle" dominant-baseline="middle">3</text>
-        
-        <!-- 旗帜 -->
-        <g transform="translate(440, 310)">
-            <rect x="-8" y="-40" width="16" height="80" fill="#333" />
-            <polygon points="-8,-40 42,-10 -8,20" fill="#e74c3c" />
-        </g>
-    </g>
-    
-    <!-- 底部文字 -->
-    <text x="600" y="550" font-family="Arial, sans-serif" font-size="36" fill="#ffffff" text-anchor="middle">简单好玩的经典扫雷游戏，重温Windows经典！</text>
-</svg>`;
-
-        const svgIcon = `<svg width="300" height="300" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
-    <!-- 背景 -->
-    <rect x="0" y="0" width="300" height="300" fill="#0a713a" />
-    
-    <!-- 扫雷网格 -->
-    <g fill="#a7d948" stroke="#4a752c" stroke-width="3">
-        <rect x="30" y="90" width="60" height="60" />
-        <rect x="90" y="90" width="60" height="60" />
-        <rect x="150" y="90" width="60" height="60" />
-        <rect x="210" y="90" width="60" height="60" />
-        
-        <rect x="30" y="150" width="60" height="60" />
-        <rect x="90" y="150" width="60" height="60" />
-        <rect x="150" y="150" width="60" height="60" />
-        <rect x="210" y="150" width="60" height="60" />
-        
-        <rect x="30" y="210" width="60" height="60" />
-        <rect x="90" y="210" width="60" height="60" />
-        <rect x="150" y="210" width="60" height="60" />
-        <rect x="210" y="210" width="60" height="60" />
-    </g>
-    
-    <!-- 地雷图标 -->
-    <circle cx="120" cy="180" r="22" fill="#333" />
-    <circle cx="120" cy="180" r="18" fill="#000" />
-    <circle cx="114" cy="174" r="4" fill="#fff" />
-    
-    <!-- 数字1 -->
-    <text x="60" y="198" font-family="Arial" font-size="45" font-weight="bold" fill="blue">1</text>
-    
-    <!-- 数字2 -->
-    <text x="180" y="138" font-family="Arial" font-size="45" font-weight="bold" fill="green">2</text>
-    
-    <!-- 旗帜 -->
-    <g transform="translate(210, 255)">
-        <rect x="-7" y="0" width="14" height="35" fill="#333" />
-        <polygon points="-7,-20 21,0 -7,20" fill="#e74c3c" />
-    </g>
-    
-    <!-- 标题 -->
-    <text x="150" y="60" font-family="Arial" font-size="36" font-weight="bold" fill="#fff" text-anchor="middle">扫雷2025</text>
-</svg>`;
-
-        // 加载分享图和微信图标
-        function loadImages() {
-            loadSVG(svgShare, 'shareCanvas');
-            loadSVG(svgIcon, 'wxCanvas');
+        function previewSVG() {
+            const svgFile = document.getElementById('svgFile').value;
+            document.getElementById('preview-svg').src = svgFile;
         }
         
-        // 加载SVG到Canvas
-        function loadSVG(svgData, canvasId) {
-            const blob = new Blob([svgData], {type: 'image/svg+xml'});
-            const url = URL.createObjectURL(blob);
+        function convertToPNG() {
+            const svgFile = document.getElementById('svgFile').value;
+            const width = document.getElementById('width').value;
+            const height = document.getElementById('height').value;
             
             const img = new Image();
             img.onload = function() {
-                const canvas = document.getElementById(canvasId);
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
                 const ctx = canvas.getContext('2d');
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                
+                // 设置白色背景
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, width, height);
+                
+                // 绘制SVG
+                ctx.drawImage(img, 0, 0, width, height);
+                
+                // 创建下载链接
+                const link = document.createElement('a');
+                link.download = svgFile.replace('.svg', '.png');
+                link.href = canvas.toDataURL('image/png');
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
             };
-            img.src = url;
+            img.src = svgFile;
         }
         
-        // 下载图像
-        function downloadImage(type) {
-            let canvas, filename;
-            
-            if (type === 'share') {
-                canvas = document.getElementById('shareCanvas');
-                filename = 'minesweeper-share.png';
-            } else {
-                canvas = document.getElementById('wxCanvas');
-                filename = 'minesweeper-wechat.png';
-            }
-            
-            const link = document.createElement('a');
-            link.download = filename;
-            link.href = canvas.toDataURL('image/png');
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-        
-        // 页面加载完成后加载图像
-        window.onload = loadImages;
+        // 初始化预览
+        previewSVG();
     </script>
 </body>
 </html> 
