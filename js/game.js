@@ -2,7 +2,7 @@
 const GAME_MODES = {
     easy: { rows: 9, columns: 9, mines: 10 },
     medium: { rows: 11, columns: 11, mines: 22 },
-    hard: { rows: 11, columns: 13, mines: 32 }
+    hard: { rows: 11, columns: 11, mines: 30 }
 };
 
 // 游戏状态
@@ -198,7 +198,15 @@ function adjustBoardSize() {
     
     // 可用的主区域尺寸（减去内边距和安全边距）
     const mainPadding = parseInt(window.getComputedStyle(main).padding) * 2 || 0;
-    const safetyMargin = isMobile ? (isSmallScreen ? 10 : 15) : 20; // 根据屏幕大小调整安全边距
+    
+    // 调整安全边距，为困难模式提供更紧凑的布局
+    let safetyMargin;
+    if (gameState.mode === 'hard') {
+        safetyMargin = isMobile ? (isSmallScreen ? 5 : 8) : 10;
+    } else {
+        safetyMargin = isMobile ? (isSmallScreen ? 10 : 15) : 20;
+    }
+    
     const mainWidth = main.offsetWidth - mainPadding - safetyMargin;
     const mainHeight = main.offsetHeight - mainPadding - safetyMargin;
     
@@ -210,7 +218,11 @@ function adjustBoardSize() {
     let scale = Math.min(scaleX, scaleY);
     
     // 根据游戏模式调整最小缩放比例
-    const minScale = gameState.mode === 'hard' ? (isMobile ? 0.6 : 0.7) : 0.8;
+    // 困难模式需要更小的最小缩放
+    const minScale = gameState.mode === 'hard' ? 
+                     (isMobile ? 0.55 : 0.65) : 
+                     (isMobile ? 0.7 : 0.8);
+    
     scale = Math.max(scale, minScale);
     
     // 应用缩放
@@ -223,7 +235,8 @@ function adjustBoardSize() {
         console.log('窗口大小:', window.innerWidth, 'x', window.innerHeight);
         console.log('主区域大小:', mainWidth, 'x', mainHeight);
         console.log('棋盘大小:', boardWidth, 'x', boardHeight);
-        console.log('应用缩放:', scale);
+        console.log('计算缩放:', Math.min(scaleX, scaleY));
+        console.log('最终缩放:', scale);
     }
 }
 
