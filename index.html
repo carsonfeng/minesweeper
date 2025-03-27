@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>扫雷游戏</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>扫雷</h1>
+            <div class="controls">
+                <div class="game-info">
+                    <div class="mines-counter">
+                        <span id="mines-count">0</span>
+                    </div>
+                    <button id="reset-button">😊</button>
+                    <div class="timer">
+                        <span id="timer">0</span>
+                    </div>
+                </div>
+                <div class="difficulty">
+                    <button id="easy" class="active">简单</button>
+                    <button id="medium">中等</button>
+                    <button id="hard">困难</button>
+                </div>
+            </div>
+        </header>
+        <main>
+            <div id="game-board"></div>
+        </main>
+        <footer>
+            <p>长按/右键标记地雷 | 单击/轻触翻开方块</p>
+        </footer>
+    </div>
+    <script src="js/game.js"></script>
+</body>
+</html> 

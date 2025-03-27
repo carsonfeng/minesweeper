@@ -1,0 +1,26 @@
+{
+  "name": "minesweeper",
+  "version": "1.0.0",
+  "description": "经典扫雷游戏的Web版本",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx http-server -o",
+    "build": "node build.js"
+  },
+  "keywords": [
+    "minesweeper",
+    "game",
+    "web",
+    "html5",
+    "css3",
+    "javascript"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "clean-css": "^5.3.2",
+    "html-minifier": "^4.0.0",
+    "http-server": "^14.1.1",
+    "terser": "^5.20.0"
+  }
+} 
